@@ -8,6 +8,7 @@ func main() {
 	var nums  = []int{5,5,5,4,3,2,2,1,1}
 	length := removeDuplicates(nums)
 	fmt.Println(length)
+	fmt.Println(nums)
 }
 //删除数组中的重复项目
 //思路：把非重复项排序，剩余的重复项丢弃
