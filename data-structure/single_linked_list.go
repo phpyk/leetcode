@@ -5,45 +5,24 @@ import (
 )
 
 func main() {
-	myList := NewList()
-	fmt.Printf("myList: %+v \n", myList)
-	fmt.Printf("myList.root address: %p \n", &myList.root)
-	fmt.Printf("myList.root.next address: %p \n", &myList.root.next)
-	fmt.Println("-----Insert e1,e2------")
-	e1 := Element{nil, 100}
-	myList.Insert(&e1, &myList.root)
-	e2 := Element{nil, 200}
-	myList.Insert(&e2, &e1)
-
-	fmt.Println("-----Insert 5 elements------")
-	//此处p作为哨兵节点，作为下一次插入时的位置
-	p := &e2
-	for i := 0; i < 3; i++ {
-		e := Element{nil, i}
-		myList.Insert(&e, p)
-		p = &e
+	l1 := NewList()
+	for i:= 9;i>0;i-=2 {
+		e := Element{nil,i}
+		l1.Insert(&e,&l1.root)
 	}
-	fmt.Println("-----Insert e3------")
-	e3 := Element{nil, 300}
-	myList.Insert(&e3, p)
-
-	fmt.Println("-----Print all Elements------")
-	myList.Print()
-
-	fmt.Println("-----Delete e2------")
-	myList.Delete(&e2)
-	myList.Print()
-
-	fmt.Println("-----Reverse list------")
-	myList.Reverse()
-	myList.Print()
-
-	fmt.Println("-----Trans to circle list------")
-	//myList.TransToCircle()
-	//myList.Print()
-
-	fmt.Println("-----Check if is circle------")
-	fmt.Printf("list is Circle ? %v\n", myList.IsCircleList())
+	fmt.Println("--------l1---------")
+	l1.Print()
+	l2 := NewList()
+	for i:=10;i>0;i-=2 {
+		e := Element{nil,i}
+		l2.Insert(&e,&l2.root)
+	}
+	fmt.Println("--------l2---------")
+	l2.Print()
+	l3 := NewList()
+	l3 = SortedLinkedListMerge(l1,l2)
+	fmt.Println("--------l3---------")
+	l3.Print()
 }
 
 type Element struct {
@@ -51,14 +30,9 @@ type Element struct {
 	Value interface{}
 }
 
-//func (e *Element) Next() *Element {
-//	//处理边界
-//	//当e.next 不为空且不为list的根节点时，返回next
-//	if p := e.next; e.list != nil && p != &e.list.root {
-//		return p
-//	}
-//	return nil
-//}
+func (e *Element) Next() *Element {
+	return e.next
+}
 
 // ----------------------------------------------------------------------------
 type List struct {
@@ -77,6 +51,7 @@ func (l *List) Init() *List {
 	return l
 }
 
+//------------------------ 链表基本操作 ------------------------
 //将e插入到at后面，返回插入的结点
 func (l *List) Insert(e *Element, at *Element) *Element {
 	n := at.next
@@ -115,7 +90,7 @@ func (l *List) Print() {
 	}
 	fmt.Println(format)
 }
-
+//------------------------ 链表相关算法 ------------------------
 //单链表反转
 func (l *List) Reverse() {
 	if (*l).len <= 1 {
@@ -123,26 +98,29 @@ func (l *List) Reverse() {
 	}
 	//用lastNode记录
 	var lastNode *Element
-	for p := l.root.next; p.next != nil; {
+	var n *Element
+
+	for p := l.root.next; p != nil; {
 		//n记录下一个结点
-		n := p.next
+		n = p.next
 		//将当前结点的下一个结点设置为上一个
 		p.next = lastNode
 		//反转完毕，lastNode和p向后移动一位
+		l.root.next = p //注意这一句：设置l的头结点
 		lastNode = p
 		p = n
 	}
 }
 //单链表转为循环链表
-//func (l *List) TransToCircle()  {
-//	head := l.root.next
-//	for p := l.root.next;p != nil;p = p.next {
-//		if p.list == nil {
-//			(*p).next = head
-//			break
-//		}
-//	}
-//}
+func (l *List) TransToCircle()  {
+	head := l.root.next
+	for p := l.root.next;p != nil;p = p.next {
+		if p.next == nil {
+			(*p).next = head
+			break
+		}
+	}
+}
 
 //检测是否是循环链表
 func (l *List) IsCircleList() bool {
@@ -155,15 +133,36 @@ func (l *List) IsCircleList() bool {
 
 	isCircle := false
 	i := 1
+	head := l.root.next
 	for p := l.root.next; p != nil; p = p.next {
-		if i == (*l).len {
-			break
-		}
-		if p.next == nil {
+		//遍历l.len次之后，p的下一个==头结点，即为循环链表
+		if i == (*l).len && p.next == head {
 			isCircle = true
 			break
 		}
 		i++
 	}
 	return isCircle
+}
+
+//两个有序链表合并
+func SortedLinkedListMerge(l1 *List, l2 *List) *List {
+	nl := NewList()
+	insertAt := nl.root
+	n := l1.root.next
+	for p := l2.root.next;p != nil; p = p.next {
+		t := n.next
+		if n.Value.(int) < p.Value.(int) {
+			res := nl.Insert(n,&insertAt)
+			insertAt = *res
+		}else {
+			res := nl.Insert(p,&insertAt)
+			insertAt = *res
+		}
+		n = t
+		if n == nil {
+			break
+		}
+	}
+	return nl
 }
