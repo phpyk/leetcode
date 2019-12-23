@@ -1,4 +1,4 @@
-package main
+package stack
 
 import (
 	"errors"
@@ -25,11 +25,11 @@ func (l *LinkedList) Init() *LinkedList {
 }
 //添加到最后
 func (l *LinkedList) Append(n *Node) (bool, *Node) {
-	var lastNode Node
+	var lastNode *Node
 	i := &(l.root)
 	for {
 		if i.next == nil {
-			lastNode = *i
+			lastNode = i
 			break
 		}
 		i = i.next
@@ -57,7 +57,7 @@ func (l *LinkedList) DeleteLast() (bool, *Node) {
 	l.length--
 	return true,last
 }
-
+//基于链表的链式栈
 type LinkedListStack struct {
 	items *LinkedList
 	count int //栈中元素个数
