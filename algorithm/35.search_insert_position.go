@@ -23,10 +23,11 @@ import "fmt"
  */
 func main() {
 	numbers := []int{1,2,3,5,6}
-	target := 8
+	target := 9
 	fmt.Println(searchInsert(numbers,target))
+	fmt.Println(searchInsert2(numbers,target))
 }
-
+//遍历匹配
 func searchInsert(nums []int, target int) int {
 	i := 0
 	for i < len(nums) {
@@ -40,4 +41,22 @@ func searchInsert(nums []int, target int) int {
 		}
 	}
 	return i
+}
+//二分查找
+func searchInsert2(nums []int, target int) int {
+	left := 0
+	right := len(nums) - 1
+	var mid int
+	for left <= right {
+		mid = left + (right - left)  / 2
+		if nums[mid] == target {
+			return mid
+		}else if target > nums[mid] {
+			left = mid + 1
+		}else if target < nums[mid] {
+			right = mid - 1
+		}
+	}
+
+	return left
 }
